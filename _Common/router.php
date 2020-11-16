@@ -1,10 +1,16 @@
 <?php
+namespace _Common\router;
+use Sections\IpCheck\IpCheckController;
+
 $route=isset($_REQUEST['route'])?(string)$_REQUEST['route']:null;
 switch ($route)
 {
-    case 'ipcheck-page':
+    case 'ip-check':
     default:
         require '../Sections/IpCheck/IpCheckController.php';
-        $IpCheckController=new Sections\IpCheck\IpCheckController();
-        $IpCheckController->showPage();
+        $IpCheckController=new IpCheckController();
+        $action=isset($_REQUEST['action'])?(string)$_REQUEST['action']:null;
+        if (!$action or !method_exists($IpCheckController,$action)) $action=$IpCheckController->getActionDef();
+        if (!method_exists($IpCheckController,$action)) throw new \Exception("Нет действия для указанного контроллера");
+        $IpCheckController->$action();
 }

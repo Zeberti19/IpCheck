@@ -2,11 +2,15 @@
 
 namespace Sections\IpCheck;
 
-
+//TODO добавить родительский класс или интерфейс
 class IpCheckController
 {
-    protected function ipCheck($url)
+    protected $actionDef='showPage';
+
+    public function ipCheck()
     {
+        $url=isset($_REQUEST['url'])?(string)$_REQUEST['url']:null;
+        if (!$url) throw new \Exception("Не был передан IP хоста");
         //TODO вынести в отдельный файл настроек некоторые парамтеры
         $checkCount=10;
         $responseTimeMin=null;
@@ -47,12 +51,18 @@ class IpCheckController
         }
         $responseTimeAvg=$timeTemp/$checkCount;
 
-        return print_r(['min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg],true);
+        $result=['min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg];
+        echo json_encode($result);
+    }
+
+    public function getActionDef()
+    {
+       return $this->actionDef;
     }
 
     public function showPage()
     {
-        $data=$this->ipCheck("217.69.139.200:80" );
-        echo "В разработке<br>Данные:<br>" .str_replace("\n","<br>",$data);
+        $html=require "ip-check-view.php";
+        echo $html;
     }
 }
