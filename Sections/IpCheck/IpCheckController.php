@@ -5,12 +5,13 @@ namespace Sections\IpCheck;
 //TODO добавить родительский класс или интерфейс
 class IpCheckController
 {
-    protected $actionDef='showPage';
+    public $actionDef='showPage';
 
     public function ipCheck()
     {
-        $url=isset($_REQUEST['url'])?(string)$_REQUEST['url']:null;
-        if (!$url) throw new \Exception("Не был передан IP хоста");
+        //TODO заменить trim на что-то типа mb_trim
+        $url=isset($_REQUEST['url'])?trim((string)$_REQUEST['url']):null;
+        if (!$url) throw new \Exception("Не был передан IP (URL) хоста");
         //TODO вынести в отдельный файл настроек некоторые парамтеры
         $checkCount=10;
         $responseTimeMin=null;
@@ -42,6 +43,7 @@ class IpCheckController
             if ($errorMsg) throw new \Exception($errorMsg,3);
 
             //curl_getinfo($curl, CURLINFO_TOTAL_TIME );
+            //TODO разобрать какая точность у curl
             $responseTime=curl_getinfo($curl, CURLINFO_STARTTRANSFER_TIME );
             $timeTemp+=$responseTime;
             if (0==$n or $responseTime<$responseTimeMin) $responseTimeMin=$responseTime;
@@ -51,13 +53,18 @@ class IpCheckController
         }
         $responseTimeAvg=$timeTemp/$checkCount;
 
-        $result=['min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg];
-        echo json_encode($result);
-    }
+        require 'IpCheckModel.php';
+        $IpCheckModel = new IpCheckModel();
+        $IpCheckModel->tableName='t_data';
+        $IpCheckModel->schemaName='sch_ip_check';
+        $IpCheckModel->url=$url;
+        $IpCheckModel->response_time_avg=$responseTimeAvg;
+        $IpCheckModel->response_time_min=$responseTimeMin;
+        $IpCheckModel->response_time_max=$responseTimeMax;
+        $IpCheckModel->save();
 
-    public function getActionDef()
-    {
-       return $this->actionDef;
+        $result=[ 'status'=>'success', 'data'=>['min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg] ];
+        echo json_encode($result);
     }
 
     public function showPage()
