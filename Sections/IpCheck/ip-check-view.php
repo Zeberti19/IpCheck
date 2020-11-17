@@ -1,3 +1,6 @@
+<?php
+    /**@var string $ipCheckDataTableWidget*/
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -32,24 +35,7 @@
                 </div>
             </div>
             <div class="ip-check-data ip-check-data_table col-12 col-md-6">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="ip-check-data_table__cell">Адрес</th>
-                            <th>Среднее время отклика</th>
-                            <th>Мин. время отклика</th>
-                            <th>Макс. время отклика</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
-                            <td>...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <?php echo $ipCheckDataTableWidget; ?>
             </div>
         </div>
     </main>

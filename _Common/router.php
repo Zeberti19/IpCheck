@@ -7,7 +7,7 @@ switch ($route)
 {
     case 'ip-check':
     default:
-        require '../Sections/IpCheck/IpCheckController.php';
+        require_once '../Sections/IpCheck/IpCheckController.php';
         $IpCheckController=new IpCheckController();
         $action=isset($_REQUEST['action'])?(string)$_REQUEST['action']:null;
         if (!$action or !method_exists($IpCheckController,$action)) $action=$IpCheckController->actionDef;

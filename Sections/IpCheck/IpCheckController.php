@@ -53,23 +53,35 @@ class IpCheckController
         }
         $responseTimeAvg=$timeTemp/$checkCount;
 
-        require 'IpCheckModel.php';
+        $precision=6;
+        $responseTimeAvg=number_format($responseTimeAvg,$precision);
+        $responseTimeMin=number_format($responseTimeMin,$precision);
+        $responseTimeMax=number_format($responseTimeMax,$precision);
+
+
+        require_once 'IpCheckModel.php';
         $IpCheckModel = new IpCheckModel();
-        $IpCheckModel->tableName='t_data';
-        $IpCheckModel->schemaName='sch_ip_check';
+        $Date=new \DateTime();
+        $IpCheckModel->datetime=$Date->format("d.m.Y H:i:s");
         $IpCheckModel->url=$url;
         $IpCheckModel->response_time_avg=$responseTimeAvg;
         $IpCheckModel->response_time_min=$responseTimeMin;
         $IpCheckModel->response_time_max=$responseTimeMax;
         $IpCheckModel->save();
 
-        $result=[ 'status'=>'success', 'data'=>['min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg] ];
+        $result=[ 'status'=>'success', 'data'=>['id'=> $IpCheckModel->id,
+            'datetime'=> $IpCheckModel->datetime,
+            'min'=>$responseTimeMin,'max'=>$responseTimeMax,'avg'=>$responseTimeAvg] ];
         echo json_encode($result);
     }
 
     public function showPage()
     {
-        $html=require "ip-check-view.php";
-        echo $html;
+        require_once 'IpCheckModel.php';
+        $ipCheckMas=IpCheckModel::selectAll();
+        ob_start();
+        require( "widgets/ip-check-data_table.php" );
+        $ipCheckDataTableWidget=ob_get_clean();
+        require "ip-check-view.php";;
     }
 }

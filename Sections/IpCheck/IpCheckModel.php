@@ -2,24 +2,17 @@
 namespace Sections\IpCheck;
 
 use _Common\DB;
+use PDO;
 
 class IpCheckModel
 {
+    protected $_isLoaded=false;
     protected $_properties=[];
 
-    public $tableName;
-    public $schemaName='public';
-    public $primaryColumn='id';
-    public $uniqueColumns=['url'];
-
-    public function __construct($tableName=null)
-    {
-        if (!$tableName)
-        {
-            $tableName=preg_replace('/^(.+)\\\\([^\\\\]+?)Model$/', '$2', get_class());
-            if (!$tableName) throw new \Exception(__CLASS__ .". Не удалось автоматически определить имя таблицы в БД");
-        }
-    }
+    static public $tableName='t_data';
+    static public $schemaName='sch_ip_check';
+    static public $primaryColumn='id';
+    static public $uniqueColumns=['url'];
 
     public function __set($propName,$propVal)
     {
@@ -32,24 +25,15 @@ class IpCheckModel
         return null;
     }
 
-    /**
-     * Проверяет находится ли указанный в базе
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    protected function _isRowExists()
+    public function loadFromDb($refresh=true)
     {
-        if (!$this->uniqueColumns) return false;
-
         //массив полей по которому будем искать нужное поле в базе
-        $fieldsFind=array_merge( [$this->primaryColumn], $this->uniqueColumns );
+        $fieldsFind=array_merge( [static::$primaryColumn], static::$uniqueColumns );
 
-        $schemaEncoded=DB::prepareName($this->schemaName);
-        $tableNameEncoded=DB::prepareName($this->tableName);
-        $primaryColumnEncoded=DB::prepareName($this->primaryColumn);
+        //если таковых нет, то не найти нужную запись в БД
+        if (!$fieldsFind) return false;
 
-        $whereClause=[];
+        //смотрим какие заполненные поля для поиска у нас есть и по ним формируем запрос
         $valsFind=[];
         foreach ($fieldsFind as &$fieldName)
         {
@@ -60,12 +44,30 @@ class IpCheckModel
                 break;
             }
         }
-        $sql="select {$primaryColumnEncoded} as p from {$schemaEncoded}.{$tableNameEncoded} where {$whereClause}";
+        //если ни одного поля для поиска нет, то нужную запись не найти
+        if (!$valsFind) return false;
 
-        $row=DB::selectFirst($sql,$valsFind);
+        $schemaEncoded=DB::prepareName(static::$schemaName);
+        $tableNameEncoded=DB::prepareName(static::$tableName);
+        $sql=
+            "select 
+                   id,
+                   to_char(datetime,'DD.MM.YYYY HH24:MI:SS') as datetime,
+                   url,
+                   response_time_avg,
+                   response_time_min,
+                   response_time_max 
+             from {$schemaEncoded}.{$tableNameEncoded} 
+             where {$whereClause}";
+
+        $row=DB::selectRowFirst($sql,$valsFind);
         if ($row)
         {
-            $this->{$this->primaryColumn}=$row["p"];
+            foreach ($row as $fieldName=>&$fieldVal)
+            {
+                if ($refresh or !$this->{$fieldName}) $this->{$fieldName}=$fieldVal;
+            }
+            $this->_isLoaded=true;
             return true;
         }
         return false;
@@ -73,19 +75,22 @@ class IpCheckModel
 
     protected function _insert()
     {
-        $schemaEncoded=DB::prepareName($this->schemaName);
-        $tableNameEncoded=DB::prepareName($this->tableName);
+        $schemaEncoded=DB::prepareName(static::$schemaName);
+        $tableNameEncoded=DB::prepareName(static::$tableName);
         $sql="insert into {$schemaEncoded}.{$tableNameEncoded}";
 
-        $paramsSql=array_fill(0, count($this->_properties), "?");
-        $paramsSql=implode(",", $paramsSql );
+        $vals=[];
         $fieldsEncoded=[];
         foreach ($this->_properties as $propName => &$propVal)
         {
             $fieldsEncoded[]=DB::prepareName($propName);
+            if ("datetime" == $this->$propName)
+                $vals[] = "to_timestamp(?, 'DD.MM.YYYY HH24:MI:SS')";
+            else
+                $vals[] ="?";
         }
         $sql.="(" .implode(",", $fieldsEncoded) .")";
-        $sql.=" values({$paramsSql})";
+        $sql.=" values(" .implode( ",", $vals ) .")";
 
         if (!DB::exec($sql,array_values($this->_properties))) throw new \Exception(__CLASS__ .". Не удалось вставить данные объекта в БД, хотя SQL запрос выполнен без ошибок");
         return true;
@@ -93,22 +98,27 @@ class IpCheckModel
 
     protected function _update()
     {
-        $schemaEncoded=DB::prepareName($this->schemaName);
-        $tableNameEncoded=DB::prepareName($this->tableName);
-        $primaryColumnEncoded=DB::prepareName($this->primaryColumn);
+        $schemaEncoded=DB::prepareName(static::$schemaName);
+        $tableNameEncoded=DB::prepareName(static::$tableName);
+        $primaryColumnEncoded=DB::prepareName(static::$primaryColumn);
         $sql="update {$schemaEncoded}.{$tableNameEncoded} set ";
 
         $fieldsEncoded=[];
         $vals=[];
         foreach ($this->_properties as $propName => &$propVal)
         {
-            if ($this->primaryColumn == $propName) continue;
-            $fieldsEncoded[]=DB::prepareName($propName) . " = ?";
+            //ИД нет смысла обновлять
+            if (static::$primaryColumn == $propName) continue;
+            //с датой работаем по особому
+            if ('datetime' == $propName)
+                $fieldsEncoded[]=DB::prepareName($propName) . " = to_timestamp(?, 'DD.MM.YYYY HH24:MI:SS')";
+            else
+                $fieldsEncoded[]=DB::prepareName($propName) . " = ?";
             $vals[]=$propVal;
         }
         $sql.="" .implode(", ", $fieldsEncoded);
 
-        $vals[]=$this->{$this->primaryColumn};
+        $vals[]=$this->{static::$primaryColumn};
         $sql.=" where {$primaryColumnEncoded} = ?";
 
         if (!DB::exec($sql,array_values($this->_properties))) throw new \Exception(__CLASS__ .". Не удалось обновить данные объекта в БД, хотя SQL запрос выполнен без ошибок");
@@ -118,9 +128,40 @@ class IpCheckModel
     public function save()
     {
         if (!$this->_properties) return false;
-        require '..\_Common\DB.php';
+        require_once '..\_Common\DB.php';
 
-        if ($this->_isRowExists()) return $this->_update();
+        if ($this->_isLoaded or $this->loadFromDb(false)) return $this->_update();
         return $this->_insert();
+    }
+
+    static public function selectAll()
+    {
+        require_once '..\_Common\DB.php';
+        $schemaEncoded=DB::prepareName(static::$schemaName);
+        $tableNameEncoded=DB::prepareName(static::$tableName);
+        $sql=
+            "select 
+                   id,
+                   to_char(datetime,'DD.MM.YYYY HH24:MI:SS') as datetime,
+                   url,
+                   response_time_avg,
+                   response_time_min,
+                   response_time_max 
+             from {$schemaEncoded}.{$tableNameEncoded}
+             order by datetime desc
+             ";
+
+        $DBCursor=DB::selectCursor($sql);
+        $ipcCheckMas=[];
+        if ($DBCursor)
+        {
+            $DBCursor->setFetchMode(PDO::FETCH_CLASS,get_class());
+            while($IpCheckModel=$DBCursor->fetch())
+            {
+                $ipcCheckMas[]=$IpCheckModel;
+            }
+            return $ipcCheckMas;
+        }
+        return false;
     }
 }

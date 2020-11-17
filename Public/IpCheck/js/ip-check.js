@@ -7,7 +7,10 @@ $(document).ready(function ()
         //обрезание лишних пробелов происходит на сервере, т.к. что здесь это делать не вижу смысла
         const url = input$.val();
 
-        if (''===url) alert('Пожалуйста, укажите IP хоста!');
+        if (''===url) {
+            alert('Пожалуйста, укажите IP хоста!');
+            return;
+        }
 
         $.ajax({
             type: 'POST',
@@ -42,8 +45,16 @@ $(document).ready(function ()
                     alert(errMsg);
                     return;
                 }
-                alert('Данные:\n' + response.data);
-                console.log(response.data);
+                const dataRender=
+                    {
+                        id: response.data.id,
+                        url: url,
+                        datetime: response.data.datetime,
+                        avg: response.data.avg,
+                        min: response.data.min,
+                        max: response.data.max
+                    };
+                dataRowAdd(dataRender);
             },
             error: function(jqXHR, textStatus, errorThrown){
                 let errMsg=errMsgPrefix + 'AJAX запрос на проверку хоста не удалось выполнить';
@@ -56,3 +67,22 @@ $(document).ready(function ()
 
     });
 });
+
+function dataRowAdd(data)
+{
+    //удаляем фейковую строку, если есть
+    let tableFirstRow$=$('#ip-check-data__table > tbody > tr');
+    if (!tableFirstRow$.attr('data-id')) tableFirstRow$.remove();
+    //добавляем/обновляем новую
+    let tableRow$=$('#ip-check-data__table > tbody > tr[data-id=' + data.id + ']');
+    if (tableRow$) tableRow$.remove();
+    $('#ip-check-data__table > tbody').prepend(
+        "<tr data-id='" + data.id +"'>" +
+        "<td class='ip-check-data_table__cell'>" + data.datetime + "</td>" +
+        "<td class='ip-check-data_table__cell'>" + data.url + "</td>" +
+        "<td class='ip-check-data_table__cell'>" + data.avg + "</td>" +
+        "<td class='ip-check-data_table__cell'>" + data.min + "</td>" +
+        "<td class='ip-check-data_table__cell'>" + data.max + "</td>" +
+        "</tr>"
+    );
+}

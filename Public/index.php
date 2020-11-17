@@ -3,7 +3,7 @@
 //TODO использовать set_exception_handler
 try
 {
-    require '../_Common/router.php';
+    require_once '../_Common/router.php';
 }
 catch (Exception $Exception)
 {

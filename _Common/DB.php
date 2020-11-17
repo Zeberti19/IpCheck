@@ -56,7 +56,7 @@ class DB
      * @param null $params
      * @return mixed
      */
-    static public function selectFirst($sql, $params=null)
+    static public function selectRowFirst($sql, $params=null)
     {
         if (!static::$PDO) static::connect();
         if (static::$PDOStatement) static::$PDOStatement->closeCursor();
@@ -64,6 +64,15 @@ class DB
         static::$PDOStatement=static::$PDO->prepare($sql);
         static::$PDOStatement->execute($params);
         return static::$PDOStatement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    static public function selectCursor($sql, $params=null)
+    {
+        if (!static::$PDO) static::connect();
+        if (static::$PDOStatement) static::$PDOStatement->closeCursor();
+        static::$PDOStatement=static::$PDO->prepare($sql);
+        static::$PDOStatement->execute($params);
+        return static::$PDOStatement;
     }
 
     static public function exec($sql, $params=null)
