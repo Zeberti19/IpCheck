@@ -4,6 +4,7 @@ namespace Sections\IpCheck;
 use _Common\DB;
 use PDO;
 
+//TODO добавить родительский класс
 class IpCheckModel
 {
     protected $_isLoaded=false;

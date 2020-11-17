@@ -19,7 +19,8 @@ $(document).ready(function ()
                 {
                     route: 'ip-check',
                     action: 'ipCheck',
-                    url: url
+                    url: url,
+                    isAjax: true
                 } ,
             success: function(response,textStatus,jqXHR){
                 if (!response)

@@ -7,6 +7,12 @@ use PDOStatement;
 
 class DB
 {
+    /**
+     * Имя драйвера, который PHP должен использовать для соединения с базой данных.
+     * Например для PostgresSQL, это будет "pgsql"
+     *
+     * @var null|string
+     */
     static protected $dbType = null;
     static protected $host = null;
     static protected $port = null;
@@ -25,24 +31,20 @@ class DB
      */
     static protected $PDOStatement = null;
 
-
-    //TODO вынести параметры подключения в конфиг
-    static public function setConnectParams()
+    static protected function _setConnectParams()
     {
-        static::$dbType="pgsql";
-        //static::$dbType="mysql";
-        static::$host="localhost";
-        static::$port=5432;
-        //static::$port=3306;
-        static::$dbName="db_ip_check";
-        static::$userLogin="postgres";
-        static::$userPass="password";
-        static::$charset="UTF8";
+        static::$dbType=Config::$DB_DRIVER;
+        static::$host=Config::$DB_HOST;
+        static::$port=Config::$DB_PORT;
+        static::$dbName=Config::$DB_NAME;
+        static::$userLogin=Config::$DB_USER;
+        static::$userPass=Config::$DB_USER_PASSWORD;
+        static::$charset=Config::$DB_CHARSET;
     }
 
     static protected function connect()
     {
-        static::setConnectParams();
+        static::_setConnectParams();
         $connectStr= static::$dbType .":host=".static::$host .";port=".static::$port.";dbname=" .static::$dbName;
         if ("pgsql"==static::$dbType) $connectStr .=";options='--client_encoding=" .static::$charset ."'";
         static::$PDO = new PDO($connectStr, static::$userLogin, static::$userPass, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
@@ -52,15 +54,14 @@ class DB
     /**
      * Выбирает только первую строку после выполнения SQL запроса и возвращает его в виде ассоциативного массива
      *
-     * @param $sql
-     * @param null $params
+     * @param string $sql
+     * @param null|string[]|int[]|float[] $params
      * @return mixed
      */
     static public function selectRowFirst($sql, $params=null)
     {
         if (!static::$PDO) static::connect();
         if (static::$PDOStatement) static::$PDOStatement->closeCursor();
-        //static::$PDOCursor = static::$PDO->query($sql, PDO::FETCH_CLASS, 'Sections\\IpCheck\\IpCheckModel');
         static::$PDOStatement=static::$PDO->prepare($sql);
         static::$PDOStatement->execute($params);
         return static::$PDOStatement->fetch(PDO::FETCH_ASSOC);

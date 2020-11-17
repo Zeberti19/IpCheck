@@ -1,0 +1,7 @@
+DB_DRIVER = pgsql
+DB_HOST = localhost
+DB_PORT = 5432
+DB_NAME = db_ip_check
+DB_USER = postgres
+DB_USER_PASSWORD = password
+DB_CHARSET = UTF8
