@@ -7,5 +7,5 @@ require_once '../_Common/ErrorHandler.php';
 require_once '../_Common/Config.php';
 Config::load();
 
-require_once '../_Common/router.php';
+require_once '../_Common/Router.php';
 Router::execute();

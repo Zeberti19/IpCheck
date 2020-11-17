@@ -2,10 +2,12 @@
 namespace Sections\IpCheck;
 
 use _Common\DB;
+use _Common\Models\ActiveRecord;
 use PDO;
 
-//TODO добавить родительский класс
-class IpCheckModel
+require_once "../_Common/Models/ActiveRecord.php";
+
+class IpCheckModel extends ActiveRecord
 {
     protected $_isLoaded=false;
     protected $_properties=[];
@@ -129,7 +131,7 @@ class IpCheckModel
     public function save()
     {
         if (!$this->_properties) return false;
-        require_once '..\_Common\DB.php';
+        require_once '../_Common/DB.php';
 
         if ($this->_isLoaded or $this->loadFromDb(false)) return $this->_update();
         return $this->_insert();
@@ -137,7 +139,7 @@ class IpCheckModel
 
     static public function selectAll()
     {
-        require_once '..\_Common\DB.php';
+        require_once '../_Common/DB.php';
         $schemaEncoded=DB::prepareName(static::$schemaName);
         $tableNameEncoded=DB::prepareName(static::$tableName);
         $sql=

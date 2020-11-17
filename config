@@ -5,3 +5,5 @@ DB_NAME = db_ip_check
 DB_USER = postgres
 DB_USER_PASSWORD = password
 DB_CHARSET = UTF8
+CURL_CHECK_COUNT = 10
+CURL_TIME_PRECISION = 6

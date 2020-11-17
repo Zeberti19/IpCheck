@@ -1,4 +1,4 @@
-//TODO использовать MVC
+//TODO передалать всё на MVC, вынести общие функции в отдельный файл
 $(document).ready(function ()
 {
     $('#ip-check-input__btn-check').click(function () {

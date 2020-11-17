@@ -17,6 +17,18 @@ class Config
     static public $DB_USER = null;
     static public $DB_USER_PASSWORD = null;
     static public $DB_CHARSET = null;
+    /**
+     * Количество проверок, чтобы определить время отклика
+     *
+     * @var null|string
+     */
+    static public $CURL_CHECK_COUNT = null;
+    /**
+     * Количество цифр после запятой во времени отклика
+     *
+     * @var null|string
+     */
+    static public $CURL_TIME_PRECISION = null;
 
     static public function load( $configPath="../config" )
     {

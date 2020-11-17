@@ -34,9 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div class="ip-check-data ip-check-data_table col-12 col-md-6">
-                <?php echo $ipCheckDataTableWidget; ?>
-            </div>
+            <?php echo $ipCheckDataTableWidget; ?>
         </div>
     </main>
     <footer class="container"></footer>
