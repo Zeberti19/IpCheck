@@ -1,4 +1,32 @@
+.header
+{
+    background-color: #1a2e69;
+    color: #74b2d0;
+    height: 20%;
+    padding: 1.5rem 0;
+}
+.header__text
+{
+    text-align: center;
+}
+.main
+{
+    padding: 1.5rem 0;
+}
+.ip-check-data
+{
+    overflow: auto;
+}
+.ip-check-data_table__cell_header
+{
+    text-align: center;
+}
+.ip-check-data_table__body
+{
+    color: #000000;
+}
 .ip-check-data_table__cell
 {
+    border: 1px solid #74b2d0;
     padding: 0.5rem;
 }

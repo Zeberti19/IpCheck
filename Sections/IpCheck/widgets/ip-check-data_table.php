@@ -2,18 +2,18 @@
     /**@var \Sections\IpCheck\IpCheckModel[] $ipCheckMas*/
     use _Common\Helpers\HtmlHelper;
 ?>
-<div class="ip-check-data ip-check-data_table col-12 col-md-6">
+<div class="ip-check-data ip-check-data_table">
     <table id="ip-check-data__table">
         <thead>
         <tr>
-            <th class="ip-check-data_table__cell">Дата и время</th>
-            <th class="ip-check-data_table__cell">Адрес</th>
-            <th class="ip-check-data_table__cell">Среднее время отклика (сек)</th>
-            <th class="ip-check-data_table__cell">Мин. время отклика (сек)</th>
-            <th class="ip-check-data_table__cell">Макс. время отклика (сек)</th>
+            <th class="ip-check-data_table__cell ip-check-data_table__cell_header">Дата и время</th>
+            <th class="ip-check-data_table__cell ip-check-data_table__cell_header">Адрес</th>
+            <th class="ip-check-data_table__cell ip-check-data_table__cell_header">Среднее время отклика (сек)</th>
+            <th class="ip-check-data_table__cell ip-check-data_table__cell_header">Мин. время отклика (сек)</th>
+            <th class="ip-check-data_table__cell ip-check-data_table__cell_header">Макс. время отклика (сек)</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="ip-check-data_table__body">
         <?php if (!$ipCheckMas): ?>
             <tr>
                 <td class="ip-check-data_table__cell">...</td>

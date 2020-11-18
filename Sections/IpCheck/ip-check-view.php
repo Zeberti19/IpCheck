@@ -10,21 +10,23 @@
     <link rel="stylesheet" href="_common/css/bootstrap.min.css">
     <script src="_common/js/jquery-3.5.1.min.js"></script>
 
+    <link rel="stylesheet" href="_common/css/_common.css">
+
     <link rel="stylesheet" href="IpCheck/css/ip-check.css">
     <script src="IpCheck/js/ip-check.js"></script>
 
     <title>Тестовое задание. Приложение для проверки целостности и качества соединений в ip-сетях</title>
 </head>
 <body>
-    <header class="container">
-        <h1>
+    <header class="container-fluid header">
+        <h1 class="header__text">
             Тестовое задание Чеснокова Е.Н. Приложение для проверки целостности и качества соединений в ip-сетях.
         </h1>
     </header>
-    <main class="container">
+    <main class="container main">
         <div class="row">
-            <div class="ip-check-input col-12 col-md-6">
-                <div>
+            <div class="col-12 col-md-4">
+                <div class="ip-check-input">
                     <div>
                         <label for="ip-check-input__ip-field">Введитте IP (или URL), который нужно проверить:</label>
                     </div>
@@ -34,7 +36,9 @@
                     </div>
                 </div>
             </div>
-            <?php echo $ipCheckDataTableWidget; ?>
+            <div class="col-12 col-md-8">
+                <?php echo $ipCheckDataTableWidget; ?>
+            </div>
         </div>
     </main>
     <footer class="container"></footer>
